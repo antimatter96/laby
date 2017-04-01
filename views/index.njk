@@ -1,0 +1,161 @@
+<!DOCTYPE HTML>
+<!--
+	Overflow by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="static/favicon.ico" type="image/x-icon">
+		<title>Labyrinthos</title>
+		<meta charset="utf-8" />
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="static/css/main.css" />
+		<link rel="stylesheet" href="static/css/style.css" />
+		<link href="https://fonts.googleapis.com/css?family=Cinzel:400,700" rel="stylesheet">
+	</head>
+	<body>
+	
+			<section id="header">
+				<header class="image centered">
+					<img id="spons" src="static/spons_logo.png">
+					<br>
+					Presents
+					<br>
+					<br>
+					<img id="logo" src="static/logo.png">
+					<h1>Labyrinthos</h1>
+					<p>An online treasure hunt</p>
+				</header>
+				<footer>
+					<a href="#login" class="button style2 ">Login</a>
+					<a href="#register" class="button style2 ">Register</a>
+					<a href="#rules" class="button style2 ">Rules</a>
+					<a href="/play" class="button style2 ">Play</a>
+					<a href="/leaderboard" class="button style2 ">Leaderboard</a>
+				</footer>
+			</section>
+
+			<article id="login" class="container box style3">
+				<header>
+					<h2>Login</h2>
+				</header>
+				<form method="post" action="/login">
+					<div class="row 50%">
+						<input type="hidden" name="_csrf" value="{{csrfToken}}">
+						<div class="6u 12u$(mobile)">
+							<label>Moksha ID of Captain</label>
+							<input type="text" name="moksha_id" placeholder="Moksha ID" required />
+						</div>
+						<div class="6u$ 12u$(mobile)">
+							<label>Password</label>
+							<input type="password" name="password" placeholder="Password" required/>
+						</div>
+						<div class="12u$">
+							<ul class="actions">
+								<li><input type="submit" value="Login"/></li>
+							</ul>
+						</div>
+					</div>
+				</form>
+			</article>
+			
+			<article id="register" class="container box style3">
+				<header>
+					<h2>Register</h2>
+				</header>
+				<form method="post" action="/register">
+					<div class="row 50%">
+						<input type="hidden" name="_csrf" value="{{csrfToken}}">
+						<div class="12u 12u$(mobile)">
+							<label>Team Name</label>
+							<input type="text" name="team_name" placeholder="Awesome Team Name" required/>
+						</div>
+						<div class="6u 12u$(mobile)">
+							<label>Moksha ID of Captain</label>
+							<input type="text" name="moksha_id" placeholder="Captain Moksha ID" required/>
+						</div>
+						<div class="6u 12u$(mobile)">
+							<label>Password</label>
+							<input type="password" name="password" placeholder="Password" required/>
+						</div>
+						<div class="6u 12u$(mobile)">
+							<label>Moksha ID of Member 2 (optional)</label>
+							<input type="text" name="sec_moksha_id" placeholder="Team Member 2 Moksha ID" />
+						</div>
+						<div class="6u 12u$(mobile)">
+							<label>Moksha ID of Member 3 (optional)</label>
+							<input type="text" name="third_moksha_id" placeholder="Team Member 3 Moksha ID" />
+						</div>
+						<div class="12u$">
+							<ul class="actions">
+								<li><input type="submit" value="Register"></li>
+							</ul>
+						</div>
+					</div>
+				</form>
+			</article>
+		
+			<article id="rules" class="container box style3">
+				<section>
+					<header>
+						<h2>Rules</h2>
+					</header>
+					<ol class="default">
+						<li>All the participants need to register for Moksha‘17 at the Official <a href="http://www.mokshansit.com">Moksha website</a> and use the same details for the online round.</li>
+						<li>Cross-campus teams are allowed. More than one team from one college are also allowed.</li>
+						<li>Teams can consist of 3 maximum members.</li>
+						<li>The event will be held in 2 rounds: <br><u>Online Round</u><br>Top 5 team after the scheduled online round time will qualify for the next round.<br><u>Offline Round</u><br>This round will be held in the college premises. Rules for this round will be briefed once all the teams reach.</li>
+						<li>No participant can be a member of more than one team.</li>
+						<li>Organisers have the right to disqualify any team if found breaking any rule.</li>
+						<li>In case of any discrepancy, the decision of organisers will be final and binding.</li>
+					</ol>
+				</section>
+			</article>
+
+		<section id="footer">
+			<ul>
+				<li><a href="http://facebook.com/events/251708241956711" class=""><span class="label">Facebook</span></a></li>
+			</ul>
+			<img id="moksha" src="static/mok.png">
+			<div class="copyright image centered">
+				<ul class="menu">
+					<li>&copy; Labyrinthos. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+		</section>
+		
+		{% if afterSignup %}
+		<div id="countCont">
+			<span id="countText">
+				Registered Succesfully
+			</span>
+		</div>
+		{% endif %}
+		<!--
+		<div id="countCont">
+			<span id="countText">
+				
+			</span>
+		</div>
+		<script>
+			function funcUpdate(){
+				var milliSec =  new Date('2017-3-31') - Date.now();
+				var days = milliSec/86400000;
+				var SecLeft = milliSec%86400000;
+				var hours = SecLeft/(60*60*1000);
+				SecLeft = SecLeft%(60*60*1000);
+				var minutes = SecLeft/(60*1000);
+				var time = "";
+				if(parseInt(days) > 0){
+					time +=  parseInt(days) + " days | "; 
+				}
+				document.getElementById("countText").innerText = time + parseInt(hours) + " hours | " + parseInt(minutes) + " minutes";
+			}
+			var t = setTimeout(funcUpdate,60000);
+		</script>
+		-->
+	</body>
+</html>

@@ -1,0 +1,19 @@
+# [START runtime]
+runtime: nodejs
+env: flex
+
+resources:
+  cpu: 1
+  memory_gb: 0.75
+  disk_size_gb: 10
+
+manual_scaling:
+  instances: 1
+
+env_variables:
+  PRO: '1'
+  INSTANCE_CONNECTION_NAME: 'laby-162620:us-central1:laby-arpit'
+  
+beta_settings:
+  cloud_sql_instances: 'laby-162620:us-central1:laby-arpit'
+# [END runtime]

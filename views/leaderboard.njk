@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<!--
+	Overflow by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="static/favicon.ico" type="image/x-icon">
+		<title>Leaderboard</title>
+		<meta charset="utf-8" />
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="static/css/main.css" />
+		<link rel="stylesheet" href="static/css/style.css" />
+		<link href="https://fonts.googleapis.com/css?family=Cinzel:400,700" rel="stylesheet">
+	</head>
+	<body>
+			<section id="banner">
+				<header class="image">
+					<img id="logo" src="static/logo.png">
+					<h2>Labyrinthos</h2>
+				</header>
+			</section>	
+		<article class="container box style3">
+			<section>
+					<header>
+						<h3>Leaderboard</h3>
+					</header>
+					<div class="table-wrapper">
+						<table class="default">
+							<thead>
+								<tr>
+									<th>Rank</th>
+									<th>Team Name</th>
+									<th>Level</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for i in leaderboard %}
+								<tr>
+									<td>{{loop.index}}</td>
+									<td>{{i.name}}</td>
+									<td>{{i.level + 1}}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				<section>
+			</article>
+
+			
+		<section id="footer">
+			<ul>
+				<li><a href="http://facebook.com/events/251708241956711" class=""><span class="label">Facebook</span></a></li>
+			</ul>
+			<img id="moksha" src="static/mok.png">
+			<div class="copyright image centered">
+				<ul class="menu">
+					<li>&copy; Labyrinthos. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+		</section>
+		
+		<!--
+		<div id="countCont">
+			<span id="countText">
+			</span>
+		</div>
+		<script>
+			function funcUpdate(){
+				var milliSec =  new Date('2017-3-31') - Date.now();
+				var days = milliSec/86400000;
+				var SecLeft = milliSec%86400000;
+				var hours = SecLeft/(60*60*1000);
+				SecLeft = SecLeft%(60*60*1000);
+				var minutes = SecLeft/(60*1000);
+				var time = "";
+				if(parseInt(days) > 0){
+					time +=  parseInt(days) + " days | "; 
+				}
+				document.getElementById("countText").innerText = time + parseInt(hours) + " hours | " + parseInt(minutes) + " minutes";
+			}
+			var t = setTimeout(funcUpdate,60000);
+		</script>
+		-->
+	</body>
+</html>

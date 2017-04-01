@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<!--
+	Overflow by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="static/favicon.ico" type="image/x-icon">
+		<title>Play</title>
+		<meta charset="utf-8" />
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="static/css/main.css" />
+		<link rel="stylesheet" href="static/css/style.css" />
+		<link href="https://fonts.googleapis.com/css?family=Cinzel:400,700" rel="stylesheet">
+	</head>
+	<body>
+			<section id="banner">
+				<header class="image">
+					<img id="logo" src="static/logo.png">
+					<h2>Labyrinthos</h2>
+				</header>
+			</section>
+			
+			<article id="play" class="container box style3">
+				<header>
+					<h2>Level {{ level + 1}}</h2>
+				</header>
+				<div style="text-align:center;">
+					{{ q.question | safe}}
+					{% if q.images %}
+					<div class="image centered" id="qimgs">
+					{% for img in q.images %}
+						<img src='http://www.i.imgur.com/{{img}}.png'>
+					{% endfor %}
+					</div>
+					{% endif %}
+					{% if hint %}
+						<p class='hint'>Hint : {{hint}}</p>
+					{% endif %}
+				</div>
+				<form method="post" action="/play">
+					<div class="row 50%">
+						<input type="hidden" name="_csrf" value="{{csrfToken}}">
+						<div class="12u$ 12u$(mobile)">
+							<br>
+						</div>
+						<div class="12u$ 12u$(mobile)">
+							<label>Answer</label>
+							<input type='text' name="attemptAnswer" placeholder="....." required>
+						</div>
+						{% if error %}
+							<div class="12u$ 12u$(mobile) centered is-error">
+								{{error}}
+							</div>
+						{% endif %}
+						<div class="12u$">
+							<ul class="actions">
+								<li><input type="submit" value="Try"/></li>
+							</ul>
+						</div>
+					</div>
+				</form>
+			</article>
+			
+		<section id="footer">
+			<ul>
+				<li><a href="http://facebook.com/events/251708241956711" class=""><span class="label">Facebook</span></a></li>
+			</ul>
+			<img id="moksha" src="static/mok.png">
+			<div class="copyright image centered">
+				<ul class="menu">
+					<li>&copy; Labyrinthos. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+		</section>
+		
+		<div class="countCont" id="ldrboard">
+			<span id="countText">
+				<a href="/leaderboard">Leaderboard</a>
+			</span>
+			<hr>
+			<span id="countText">
+				Event ends at 1 AM
+			</span>
+		</div>
+		<!--
+		<div id="countCont">
+			<span id="countText">
+			</span>
+		</div>
+		<script>
+			function funcUpdate(){
+				var milliSec =  new Date('2017-3-31') - Date.now();
+				var days = milliSec/86400000;
+				var SecLeft = milliSec%86400000;
+				var hours = SecLeft/(60*60*1000);
+				SecLeft = SecLeft%(60*60*1000);
+				var minutes = SecLeft/(60*1000);
+				var time = "";
+				if(parseInt(days) > 0){
+					time +=  parseInt(days) + " days | "; 
+				}
+				document.getElementById("countText").innerText = time + parseInt(hours) + " hours | " + parseInt(minutes) + " minutes";
+			}
+			var t = setTimeout(funcUpdate,60000);
+		</script>
+		-->
+	</body>
+</html>
