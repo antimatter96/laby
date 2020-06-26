@@ -3,7 +3,7 @@ var request = require("request");
 var path = require("path");
 var csrf = require("csurf");
 
-var dbQueries = require("../db/queries");
+var dbQueries;
 var config = require("../../config");
 
 var router = express.Router();
@@ -500,4 +500,9 @@ function isCorrect(level, attemptAnswer) {
   }
 }
 
-module.exports = router;
+function init(config) {
+  dbQueries = require("../db/queries").init(config.knexConfig);
+  return router;
+}
+
+module.exports = init;

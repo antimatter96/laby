@@ -1,4 +1,7 @@
-var knexConfig = require("../../config").knex;
-var knex = require("knex")(knexConfig);
+var knex = require("knex");
 
-module.exports = knex;
+function createClient(config) {
+  return knex(config);
+}
+
+module.exports = createClient;
