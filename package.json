@@ -4,7 +4,6 @@
   "description": "Moksha",
   "main": "server.js",
   "dependencies": {
-    "@google-cloud/debug-agent": "^1.0.0",
     "body-parser": "^1.17.1",
     "connect-redis": "^3.2.0",
     "cookie-parser": "^1.4.3",
@@ -16,7 +15,6 @@
     "morgan": "^1.8.1",
     "mysql": "^2.13.0",
     "nunjucks": "^3.0.0",
-    "redis": "^2.7.1",
     "request": "^2.81.0",
     "serve-favicon": "^2.4.2 ",
     "validator": "^7.0.0"
@@ -24,7 +22,7 @@
   "scripts": {
     "start": "node server.js"
   },
-  "author": "",
+  "author": "antimatter96",
   "license": "MIT",
   "devDependencies": {
     "eslint": "^7.3.1",
