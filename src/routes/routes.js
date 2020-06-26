@@ -32,16 +32,7 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
-router.get("/", csrfProtection, function (req, res) {
-  if (req.session && req.session.teamId) {
-    res.redirect("/rules");
-  }
-  else {
-    var afterSignup = req.query.afterSignup || false;
-    res.render("index.njk", { csrfToken: req.csrfToken(), afterSignup: afterSignup });
-  }
-});
-
+router.get("/", csrfProtection, mainGet);
 
 router.get("/login", csrfProtection, function (req, res) {
   if (req.query.afterSignup === "true") {
@@ -60,10 +51,9 @@ router.get("/register", csrfProtection, function (req, res) {
 });
 
 router.get("/logout", logoutHandler);
-
 router.post("/logout", logoutHandler);
 
-function logoutHandler(req, res) {
+async function logoutHandler(req, res) {
   req.session.destroy(function (err) {
     if (err) {
       req.session.teamId = undefined;
@@ -452,11 +442,13 @@ router.post("/play", csrfProtection, ensureLoggedIn, function (req, res) {
   }
 });
 
-router.get("/leaderboard", function (req, res) {
+async function leaderboardGet(req, res) {
   res.render("leaderboard.njk", { leaderboard: leaderboard });
-});
+}
 
-router.get("/leaderboardUpdate", function (req, res) {
+router.get("/leaderboard", leaderboardGet);
+
+async function leaderboardUpdate(req, res) {
   if (req.get("X-Appengine-Cron") === "true") {
     updateLeaderBoard();
     //console.log("Updating");
@@ -470,7 +462,9 @@ router.get("/leaderboardUpdate", function (req, res) {
   else {
     res.sendStatus(401);
   }
-});
+}
+
+router.get("/leaderboardUpdate", leaderboardUpdate);
 
 function updateLeaderBoard() {
   dbQueries.getLeaderBoard().asCallback(function (err, rows) {
@@ -485,10 +479,6 @@ function updateLeaderBoard() {
   });
 }
 
-router.get("/loaderio-85c8963f9bd52fd8a66d2dcbc04891b0", function (req, res) {
-  res.sendFile(path.resolve(__dirname, "../public/loaderio-85c8963f9bd52fd8a66d2dcbc04891b0.txt"));
-});
-
 function isCorrect(level, attemptAnswer) {
   var answers = QA[level].answers;
   attemptAnswer = attemptAnswer.toLowerCase();
@@ -497,6 +487,16 @@ function isCorrect(level, attemptAnswer) {
   }
   else {
     return false;
+  }
+}
+
+async function mainGet(req, res) {
+  if (req.session && req.session.teamId) {
+    res.redirect("/rules");
+  }
+  else {
+    var afterSignup = req.query.afterSignup || false;
+    res.render("index.njk", { csrfToken: req.csrfToken(), afterSignup: afterSignup });
   }
 }
 
