@@ -1,61 +1,84 @@
 var config = {};
-var session = require('express-session');
-var RedisStore = require('connect-redis')(session);
 
-config.nunjucks = {};
-config.knex = {};
+config.knex = {
+  client: "mysql",
+  debug: true,
+};
+
+if (process.env.PRO == 1) {
+  config.knex.debug = false;
+  config.knex.connection = {
+    //
+    //
+    //
+    //
+  };
+  config.knex.pool = { min: 1, max: 5 };
+}
+else {
+  config.knex.connection = {
+    host: '127.0.0.1',
+    //
+    //
+    //
+  };
+}
+
+config.mokshaAuth = {
+  "url": 'http://www.mokshansit.com/login',
+  "msg": {
+    "wrongP": "Wrong Password",
+    "success": "success",
+    "invalidId": "Moksha ID does not exist",
+  }
+};
+
+
+const fs = require("fs");
+const path = require("path");
+
+config.nunjucksConfig = {};
 config.sessionConfig = {};
+config.redisConfig = {};
 
-config.nunjucks.autoescape = true;
-config.nunjucks.watch = true;
-config.nunjucks.noCache = true;
+config.nunjucksConfig = {
+  autoescape: true,
+  watch: true,
+  noCache: true,
+};
 
-config.knex.client = 'mysql';
-config.knex.debug = true;
+config.sessionConfig = {
+  resave: false,
+  saveUninitialized: false,
+  name: "appSessionId",
+  cookie: { maxAge: 43200000 },
+  secret: "secretkeyoflength256bits",
+};
 
-config.sessionConfig.resave = false;
-config.sessionConfig.secret = "secretkeyoflength256bits";
-config.sessionConfig.saveUninitialized = false;
-config.sessionConfig.name = 'appSessionId';
-config.sessionConfig.cookie = { maxAge: 43200000 };
+config.redisConfig = {
+  host: "localhost",
+  port: "6379",
+};
 
-if(process.env.PRO == 1) {
-	config.nunjucks.noCache = false;
-	config.knex.debug = false;
-	config.knex.connection = {
-		//
-		//
-		//
-		//
-	};
-	config.knex.pool = { min: 1, max: 5 };
-	
-	config.sessionConfig.secret = "secrcetodfw4sege34yhsaeffgh65d890tce5664esx0drandomlygenerated";
-	config.sessionConfig.store = new RedisStore({
-		//
-		//
-		//
-	});
-}
-else{
-	config.knex.connection = {
-		host:'127.0.0.1',
-		//
-		//
-		//
-	};
-	config.sessionConfig.store = new RedisStore({
-		host:'localhost',
-		port:'6379'
-	});
+if (process.env.PRO == 1) {
+  console.log("Using Production");
+  config.nunjucksConfig.noCache = false;
+  config.sessionConfig.secret = process.env.SESSION_SECRET;
+  config.redisConfig = {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD
+  };
+  config.port = process.env.PORT || 8080;
+  let accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
+  config.morgan = { stream: accessLogStream };
+} else {
+  let accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
+  config.morgan = { stream: accessLogStream };
 }
 
-config.mokshaAuth = {};
-config.mokshaAuth.url = 'http://www.mokshansit.com/login';
-config.mokshaAuth.msg = {};
-config.mokshaAuth.msg.wrongP = "Wrong Password";
-config.mokshaAuth.msg.success = "success";
-config.mokshaAuth.msg.invalidId = "Moksha ID does not exist";
-
+config.crypto = {
+  bcryptRounds: 10,
+};
 
 module.exports = config;

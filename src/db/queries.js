@@ -48,7 +48,7 @@ function isPart(userId1, userId2, userId3) {
 }
 
 function getLeaderBoard() {
-  return knex.select("name","level").from("teams").orderBy("level","desc").orderBy("updated_at","asc").limit(25);
+  return knex.select("name", "level").from("teams").orderBy("level", "desc").orderBy("updated_at", "asc").limit(25);
 }
 
 function getAllAttempts(teamId) {
