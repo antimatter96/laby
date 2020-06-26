@@ -10,7 +10,6 @@ puzzles[1].question = "Churning of □︎♍︎♏︎♋︎■︎ □︎♐︎ �
 puzzles[1].images = [];
 puzzles[1].answers = ["Samudar Manthan","samudar manthan","Samudra Manthan","samudra manthan","Samudra manthan","samudra Manthan","Samudar manthan","samudar Manthan","Samudramanthan","Samudarmanthan","samudramanthan","samudarmanthan"];
 
-
 puzzles[2] = {};
 puzzles[2].question = "Paris : Achilles :: X : Krishna";
 puzzles[2].images = [];

@@ -19,7 +19,7 @@ config.sessionConfig.saveUninitialized = false;
 config.sessionConfig.name = 'appSessionId';
 config.sessionConfig.cookie = { maxAge: 43200000 };
 
-if(process.env.PRO == 1){
+if(process.env.PRO == 1) {
 	config.nunjucks.noCache = false;
 	config.knex.debug = false;
 	config.knex.connection = {
