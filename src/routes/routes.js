@@ -275,6 +275,7 @@ async function registerPost(req, res) {
                   res.render("register.njk", { signupError: "Team Name Taken", csrfToken: req.csrfToken() });
                   return;
                 }
+
                 dbQueries.createTeam(teamName, id1, id2).asCallback(function (err, rows) {
                   if (err) {
                     res.sendStatus(500);
@@ -284,14 +285,8 @@ async function registerPost(req, res) {
 
                   res.redirect("/login?afterSignup=true");
                 });
-
-
               });
-
-
             });
-
-
           });
         }
         else {
@@ -299,36 +294,35 @@ async function registerPost(req, res) {
             if (err) {
               res.sendStatus(500);
               console.error(err);
+              return;
             }
-            else {
-              if (rows.length != 0) {
-                res.render("register.njk", { signupError: "Member(s) Registered with team :" + rows[0].name, csrfToken: req.csrfToken() });
-              }
-              else {
-                dbQueries.isTeamNameTaken(teamName).asCallback(function (err, rows) {
-                  if (err) {
-                    res.sendStatus(500);
-                    console.error(err);
-                  }
-                  else {
-                    if (rows[0]["count(`name`)"] != 0) {
-                      res.render("register.njk", { signupError: "Team Name Taken", csrfToken: req.csrfToken() });
-                    }
-                    else {
-                      dbQueries.createTeam(teamName, id1, id2).asCallback(function (err, rows) {
-                        if (err) {
-                          res.sendStatus(500);
-                          console.error(err);
-                        }
-                        else {
-                          res.redirect("/login?afterSignup=true");
-                        }
-                      });
-                    }
-                  }
-                });
-              }
+
+            if (rows.length != 0) {
+              res.render("register.njk", { signupError: "Member(s) Registered with team :" + rows[0].name, csrfToken: req.csrfToken() });
+              return;
             }
+
+            dbQueries.isTeamNameTaken(teamName).asCallback(function (err, rows) {
+              if (err) {
+                res.sendStatus(500);
+                console.error(err);
+                return;
+              }
+
+              if (rows[0]["count(`name`)"] != 0) {
+                res.render("register.njk", { signupError: "Team Name Taken", csrfToken: req.csrfToken() });
+                return;
+              }
+
+              dbQueries.createTeam(teamName, id1, id2).asCallback(function (err, rows) {
+                if (err) {
+                  res.sendStatus(500);
+                  console.error(err);
+                  return;
+                }
+                res.redirect("/login?afterSignup=true");
+              });
+            });
           });
         }
       });
@@ -368,7 +362,6 @@ async function registerPost(req, res) {
       });
     }
   });
-
 }
 
 async function rulesGet(req, res) {
@@ -425,33 +418,32 @@ async function playPost(req, res) {
       if (err) {
         res.sendStatus(500);
         console.log(err);
+        return;
       }
-      else {
-        if (rows[0].level > level) {
-          req.session.level = rows[0].level;
-          level = req.session.level;
-          res.render("play.njk", { q: QA[level], level: level, error: "(－‸ლ)", csrfToken: req.csrfToken() });
-        }
-        else {
-          dbQueries.updateLevel(teamId).asCallback(function (err, rows) {
-            if (err) {
-              res.sendStatus(500);
-              console.error(err);
-            }
-            else {
-              req.session.level = level + 1;
-              req.session.attempts = 0;
-              req.session.lastAttempt = undefined;
-              res.redirect("/play");
-              dbQueries.addCorrect(req.session.teamId, level, attemptAnswer).asCallback(function (err, rows) {
-                if (err) {
-                  console.error(err);
-                }
-              });
-            }
-          });
-        }
+
+      if (rows[0].level > level) {
+        req.session.level = rows[0].level;
+        level = req.session.level;
+        res.render("play.njk", { q: QA[level], level: level, error: "(－‸ლ)", csrfToken: req.csrfToken() });
+        return;
       }
+
+      dbQueries.updateLevel(teamId).asCallback(function (err, rows) {
+        if (err) {
+          res.sendStatus(500);
+          console.error(err);
+          return;
+        }
+        req.session.level = level + 1;
+        req.session.attempts = 0;
+        req.session.lastAttempt = undefined;
+        res.redirect("/play");
+        dbQueries.addCorrect(req.session.teamId, level, attemptAnswer).asCallback(function (err, rows) {
+          if (err) {
+            console.error(err);
+          }
+        });
+      });
     });
   }
   else {
