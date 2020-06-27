@@ -6,7 +6,6 @@ var bcrypt = require("bcrypt");
 var dbQueries;
 
 var router = express.Router();
-var mokAuth;
 
 var leaderboard;
 var QA = require("../../questions");
@@ -29,27 +28,31 @@ function ensureLoggedIn(req, res, next) {
   res.redirect("/login?authNeeded=true");
 }
 
+function addCSRFToken(req, res, next) {
+  res.locals.csrfToken =req.csrfToken();
+  next();
+}
+
 //
-
-router.get("/", csrfProtection, mainGet);
-
-router.get("/login", csrfProtection, loginGet);
-router.post("/login", csrfProtection, loginPost);
-
-router.get("/register", csrfProtection, registerGet);
-router.post("/register", csrfProtection, registerPost);
-
 router.get("/logout", logoutHandler);
 router.post("/logout", logoutHandler);
-
-router.get("/play", ensureLoggedIn, csrfProtection, playGet);
-router.post("/play", csrfProtection, ensureLoggedIn, playPost);
-
 router.get("/leaderboard", leaderboardGet);
-
 router.get("/leaderboardUpdate", leaderboardUpdate);
-
 router.get("/rules", rulesGet);
+
+router.use(csrfProtection);
+router.use(addCSRFToken);
+
+router.get("/", mainGet);
+
+router.get("/login", loginGet);
+router.post("/login", loginPost);
+
+router.get("/register", registerGet);
+router.post("/register", registerPost);
+
+router.get("/play", ensureLoggedIn, playGet);
+router.post("/play", ensureLoggedIn, playPost);
 
 //
 
@@ -60,21 +63,21 @@ async function mainGet(req, res) {
     return;
   }
   var afterSignup = req.query.afterSignup || false;
-  res.render("index.njk", { csrfToken: req.csrfToken(), afterSignup: afterSignup });
+  res.render("index.njk", { afterSignup: afterSignup });
 }
 
 async function loginGet(req, res) {
   if (req.query.afterSignup === "true") {
-    res.render("login.njk", { csrfToken: req.csrfToken(), modalAlert: "Registered", modalAlertLevel: "bad" });
+    res.render("login.njk", { modalAlert: "Registered", modalAlertLevel: "bad" });
   } else if (req.query.authNeeded === "true") {
-    res.render("login.njk", { csrfToken: req.csrfToken(), modalAlert: "You need to sign in", modalAlertLevel: "good" });
+    res.render("login.njk", { modalAlert: "You need to sign in", modalAlertLevel: "good" });
   } else {
-    res.render("login.njk", { csrfToken: req.csrfToken() });
+    res.render("login.njk");
   }
 }
 
 async function registerGet(req, res) {
-  res.render("register.njk", { csrfToken: req.csrfToken() });
+  res.render("register.njk");
 }
 
 async function logoutHandler(req, res) {
@@ -100,7 +103,7 @@ async function logoutHandler(req, res) {
 
 async function loginPost(req, res) {
   if (!req.body.username || !req.body.password) {
-    res.render("login.njk", { loginError: "Form Tampered With (- _ -)", csrfToken: req.csrfToken() });
+    res.render("login.njk", { loginError: "Form Tampered With (- _ -)" });
     return;
   }
 
@@ -115,7 +118,7 @@ async function loginPost(req, res) {
     }
 
     if (rows.length == 0) {
-      res.render("login.njk", { loginError: "No team registered to login with this Moksha ID", csrfToken: req.csrfToken() });
+      res.render("login.njk", { loginError: "No user with this username" });
       return;
     }
 
@@ -127,7 +130,7 @@ async function loginPost(req, res) {
       }
 
       if (!same) {
-        res.render("login.njk", { loginError: "No team registered to login with this Moksha ID", csrfToken: req.csrfToken() });
+        res.render("login.njk", { loginError: "No team registered to login with this Moksha ID" });
         return;
       }
 
@@ -146,7 +149,7 @@ async function registerPost(req, res) {
     return;
   }
   if (!req.body.username || !req.body.password) {
-    res.render("register.njk", { signupError: "Form Tampered With (- _ -)", csrfToken: req.csrfToken() });
+    res.render("register.njk", { signupError: "Form Tampered With (- _ -)" });
     return;
   }
 
@@ -161,7 +164,7 @@ async function registerPost(req, res) {
     }
 
     if (rows.length != 0) {
-      res.render("register.njk", { signupError: "Member Registered with team :" + rows[0].name, csrfToken: req.csrfToken() });
+      res.render("register.njk", { signupError: "Member Registered with team :" + rows[0].name });
       return;
     }
 
@@ -209,7 +212,7 @@ async function playGet(req, res) {
     }
     var level = rows[0].level;
     req.session.level = level;
-    res.render("play.njk", { q: QA[level], level: level, csrfToken: req.csrfToken() });
+    res.render("play.njk", { q: QA[level], level: level });
   });
 }
 
@@ -220,11 +223,11 @@ async function playPost(req, res) {
     req.session.attempts = 1;
   }
   if (!req.body.attemptAnswer) {
-    res.render("play.njk", { q: QA[level], level: level, error: "Form Tampered With (- _ -)", csrfToken: req.csrfToken() });
+    res.render("play.njk", { q: QA[level], level: level, error: "Form Tampered With (- _ -)" });
     return;
   }
   if (req.body.attemptAnswer > 250) {
-    res.render("play.njk", { q: QA[level], level: level, error: "Too long (-____-)", csrfToken: req.csrfToken() });
+    res.render("play.njk", { q: QA[level], level: level, error: "Too long (-____-)" });
     return;
   }
 
@@ -247,7 +250,7 @@ async function playPost(req, res) {
       if (rows[0].level > level) {
         req.session.level = rows[0].level;
         level = req.session.level;
-        res.render("play.njk", { q: QA[level], level: level, error: "(－‸ლ)", csrfToken: req.csrfToken() });
+        res.render("play.njk", { q: QA[level], level: level, error: "(－‸ლ)" });
         return;
       }
 
@@ -268,8 +271,7 @@ async function playPost(req, res) {
         });
       });
     });
-  }
-  else {
+  } else {
     req.session.attempts++;
     req.session.lastAttempt = Date.now();
     dbQueries.addAttempt(userId, level, attemptAnswer).asCallback(function (err, rows) {
@@ -278,7 +280,7 @@ async function playPost(req, res) {
         console.error(err);
         return;
       }
-      res.render("play.njk", { q: QA[level], level: level, error: "Wrong Answer", csrfToken: req.csrfToken() });
+      res.render("play.njk", { q: QA[level], level: level, error: "Wrong Answer" });
     });
   }
 }
@@ -321,7 +323,6 @@ function isCorrect(level, attemptAnswer) {
 
 function init(config) {
   dbQueries = require("../db/queries").init(config.knexConfig);
-  mokAuth = config.mokshaAuth;
   return router;
 }
 
