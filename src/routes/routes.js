@@ -10,7 +10,6 @@ var mokAuth;
 
 var leaderboard;
 var QA = require("../../questions");
-const { render } = require("nunjucks");
 
 var csrfProtection = csrf({ cookie: false });
 
