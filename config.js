@@ -1,41 +1,9 @@
-var config = {};
-
-config.knexConfig = {
-  client: "mysql",
-  debug: true,
-};
-
-if (process.env.PRO == 1) {
-  config.knexConfig.debug = false;
-  config.knexConfig.connection = {
-    //
-    //
-    //
-    //
-  };
-  config.knexConfig.pool = { min: 1, max: 5 };
-}
-else {
-  config.knexConfig.connection = {
-    host: '127.0.0.1',
-    //
-    //
-    //
-  };
-}
-
-config.mokshaAuth = {
-  "url": 'http://www.mokshansit.com/login',
-  "msg": {
-    "wrongP": "Wrong Password",
-    "success": "success",
-    "invalidId": "Moksha ID does not exist",
-  }
-};
-
-
 const fs = require("fs");
 const path = require("path");
+
+var knexConfig = require("./knexfile");
+
+var config = {};
 
 config.nunjucksConfig = {};
 config.sessionConfig = {};
@@ -73,9 +41,11 @@ if (process.env.PRO == 1) {
   };
   let accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
   config.morgan = { stream: accessLogStream };
+  config.knexConfig = knexConfig.production;
 } else {
   let accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
   config.morgan = { stream: accessLogStream };
+  config.knexConfig = knexConfig.development;
 }
 
 config.crypto = {

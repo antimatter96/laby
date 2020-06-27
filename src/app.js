@@ -47,7 +47,7 @@ function createApp(CONFIG) {
   // CUSTOM MIDDLEWARE
   //==================================
 
-  app.use(function(req, res, next) {
+  app.use(async function(req, res, next) {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
     res.setHeader("X-Content-Type-Options", "nosniff");
@@ -66,7 +66,7 @@ function createApp(CONFIG) {
   var routes = require("./routes/routes")(CONFIG);
   app.use("/", routes);
 
-  app.use(function(req, res, _next) {
+  app.use(async function(req, res, _next) {
     res.status(404);
     res.format({
       html: function() {
@@ -81,7 +81,7 @@ function createApp(CONFIG) {
     });
   });
 
-  app.use(function(err, req, res, next) {
+  app.use(async function(err, req, res, next) {
     console.log(err);
     if (!err) {
       next();
@@ -94,7 +94,7 @@ function createApp(CONFIG) {
     }
   });
 
-  app.use(function(err, req, res) {
+  app.use(async function(err, req, res) {
     console.log("ERROR =>> ", err);
     res.status(err.status || 500);
     res.render("error", {

@@ -1,7 +1,7 @@
 var express = require("express");
-var request = require("request");
 var path = require("path");
 var csrf = require("csurf");
+var bcrypt = require("bcrypt");
 
 var dbQueries;
 
@@ -22,7 +22,7 @@ function rateLimmiter(req, res, next) {
 }
 
 function ensureLoggedIn(req, res, next) {
-  if (req.session && req.session.teamId) {
+  if (req.session && req.session.userId) {
     next();
     return;
   }
@@ -55,7 +55,7 @@ router.get("/rules", rulesGet);
 
 
 async function mainGet(req, res) {
-  if (req.session && req.session.teamId) {
+  if (req.session && req.session.userId) {
     res.redirect("/rules");
     return;
   }
@@ -80,9 +80,8 @@ async function registerGet(req, res) {
 async function logoutHandler(req, res) {
   req.session.destroy(function (err) {
     if (err) {
-      req.session.teamId = undefined;
+      req.session.userId = undefined;
       req.session.level = undefined;
-      req.session.teamName = undefined;
     }
     res.status(200);
     res.format({
@@ -100,131 +99,92 @@ async function logoutHandler(req, res) {
 }
 
 async function loginPost(req, res) {
-  if (!req.body.moksha_id || !req.body.password) {
+  if (!req.body.username || !req.body.password) {
     res.render("login.njk", { loginError: "Form Tampered With (- _ -)", csrfToken: req.csrfToken() });
     return;
   }
 
-  var moksha_id = req.body.moksha_id;
-  var pass = req.body.password;
-  var options = {
-    method: "POST",
-    url: mokAuth.url,
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    timeout: 1000000,
-    form: { moksha_id: moksha_id, pass: pass }
-  };
+  var username = req.body.moksha_id;
+  var password = req.body.password;
 
-  request(options, function (error, response, body) {
-    if (error) {
+  dbQueries.getUser(username).asCallback(function (err, rows) {
+    if (err) {
       res.sendStatus(500);
-      console.error(error);
+      console.error(err);
       return;
     }
 
-    body = JSON.parse(body);
-
-    if (body.msg === mokAuth.msg.wrongP) {
-      res.render("login.njk", { loginError: "Wrong Password", csrfToken: req.csrfToken() });
-      return;
-    } else if (body.msg !== mokAuth.msg.success) {
-      res.render("login.njk", { loginError: "Moksha ID Not Found", csrfToken: req.csrfToken() });
+    if (rows.length == 0) {
+      res.render("login.njk", { loginError: "No team registered to login with this Moksha ID", csrfToken: req.csrfToken() });
       return;
     }
 
-    dbQueries.getTeamName(body.user.moksha_id).asCallback(function (err, rows) {
+    bcrypt.compare(password, rows[0].password, function(err, same) {
       if (err) {
         res.sendStatus(500);
         console.error(err);
         return;
       }
-      if (rows.length == 0) {
+
+      if (!same) {
         res.render("login.njk", { loginError: "No team registered to login with this Moksha ID", csrfToken: req.csrfToken() });
         return;
       }
-      req.session.teamId = rows[0]._id;
+
+      req.session.userId = rows[0]._id;
       req.session.level = rows[0].level;
-      req.session.teamName = rows[0].name;
       req.session.attempts = 0;
       res.redirect("/rules");
-      console.log(body.user.moksha_id + " ==> Team Name : " + rows[0].name + " ==> " + body.user.firstName + " ==> " + body.user.phone_no + " ==> " + body.user.email);
     });
+
   });
 }
 
 async function registerPost(req, res) {
-  if (req.session && req.session.teamId) {
+  if (req.session && req.session.userId) {
     res.redirect("/play");
     return;
   }
-  if (!req.body.team_name || !req.body.moksha_id || !req.body.password) {
+  if (!req.body.username || !req.body.password) {
     res.render("register.njk", { signupError: "Form Tampered With (- _ -)", csrfToken: req.csrfToken() });
     return;
   }
 
-  var body = req.body;
+  var username = req.body.username;
+  var password = req.body.password;
 
-  var id = body.moksha_id;
-  var teamName = body.team_name;
-
-  var options = {
-    method: "POST",
-    url: mokAuth.url,
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    timeout: 1000000,
-    form: { moksha_id: id, pass: body.password }
-  };
-  request(options, function (error, response, res_body) {
-    if (error) {
+  dbQueries.isPart(username).asCallback(function (err, rows) {
+    if (err) {
       res.sendStatus(500);
-      console.log(error);
+      console.error(err);
       return;
     }
 
-    res_body = JSON.parse(res_body);
-    //console.log(res_body);
-    if (res_body.msg === mokAuth.msg.invalidId) {
-      res.render("register.njk", { signupError: "Please check Moksha Id (1st)", csrfToken: req.csrfToken() });
-      return;
-    }
-    if (res_body.msg === mokAuth.msg.wrongP) {
-      res.render("register.njk", { signupError: "Wrong Password", csrfToken: req.csrfToken() });
+    if (rows.length != 0) {
+      res.render("register.njk", { signupError: "Member Registered with team :" + rows[0].name, csrfToken: req.csrfToken() });
       return;
     }
 
-    dbQueries.isPart(id).asCallback(function (err, rows) {
-      if (err) {
+    bcrypt.hash(password, 10, function(err, enc) {
+      if(err) {
         res.sendStatus(500);
-        console.error(err);
+        console.log(err);
         return;
       }
 
-      if (rows.length != 0) {
-        res.render("register.njk", { signupError: "Member Registered with team :" + rows[0].name, csrfToken: req.csrfToken() });
-        return;
-      }
-
-      dbQueries.isTeamNameTaken(teamName).asCallback(function (err, rows) {
+      dbQueries.createUser(username, enc).asCallback(function (err, rows) {
         if (err) {
           res.sendStatus(500);
           console.error(err);
           return;
         }
-        if (rows[0]["count(`name`)"] != 0) {
-          res.render("register.njk", { signupError: "Team Name Taken", csrfToken: req.csrfToken() });
-          return;
-        }
-        dbQueries.createTeam(teamName, id).asCallback(function (err, rows) {
-          if (err) {
-            res.sendStatus(500);
-            console.error(err);
-            return;
-          }
-          res.redirect("/login?afterSignup=true");
-        });
+        
+        res.redirect("/login?afterSignup=true");
       });
     });
   });
+
+  
 }
 
 async function rulesGet(req, res) {
@@ -241,7 +201,7 @@ async function playGet(req, res) {
     return;
   }
 
-  dbQueries.getLevel(req.session.teamId).asCallback(function (err, rows) {
+  dbQueries.getLevel(req.session.userId).asCallback(function (err, rows) {
     if (err) {
       res.sendStatus(500);
       console.log(err);
@@ -268,16 +228,16 @@ async function playPost(req, res) {
     return;
   }
 
-  var teamId = req.session.teamId;
+  var userId = req.session.userId;
   var attemptAnswer = req.body.attemptAnswer;
 
-  console.log(req.session.teamId + " ==> " + req.session.level + " ==> " + req.body.attemptAnswer);
+  console.log(req.session.userId + " ==> " + req.session.level + " ==> " + req.body.attemptAnswer);
 
   if (isCorrect(level, attemptAnswer)) {
     level = req.session.level;
     req.session.attempts = 0;
     //req.session.lastAttempt = undefined;
-    dbQueries.getLevel(teamId).asCallback(function (err, rows) {
+    dbQueries.getLevel(userId).asCallback(function (err, rows) {
       if (err) {
         res.sendStatus(500);
         console.log(err);
@@ -291,7 +251,7 @@ async function playPost(req, res) {
         return;
       }
 
-      dbQueries.updateLevel(teamId).asCallback(function (err, rows) {
+      dbQueries.updateLevel(userId).asCallback(function (err, rows) {
         if (err) {
           res.sendStatus(500);
           console.error(err);
@@ -301,7 +261,7 @@ async function playPost(req, res) {
         req.session.attempts = 0;
         req.session.lastAttempt = undefined;
         res.redirect("/play");
-        dbQueries.addCorrect(req.session.teamId, level, attemptAnswer).asCallback(function (err, rows) {
+        dbQueries.addCorrect(req.session.userId, level, attemptAnswer).asCallback(function (err, rows) {
           if (err) {
             console.error(err);
           }
@@ -312,7 +272,7 @@ async function playPost(req, res) {
   else {
     req.session.attempts++;
     req.session.lastAttempt = Date.now();
-    dbQueries.addAttempt(teamId, level, attemptAnswer).asCallback(function (err, rows) {
+    dbQueries.addAttempt(userId, level, attemptAnswer).asCallback(function (err, rows) {
       if (err) {
         res.sendStatus(500);
         console.error(err);

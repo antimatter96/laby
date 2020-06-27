@@ -46,8 +46,8 @@
 					<div class="row 50%">
 						<input type="hidden" name="_csrf" value="{{csrfToken}}">
 						<div class="6u 12u$(mobile)">
-							<label>Moksha ID of Captain</label>
-							<input type="text" name="moksha_id" placeholder="Moksha ID" required />
+							<label>Username</label>
+							<input type="text" name="username" placeholder="Moksha ID" required />
 						</div>
 						<div class="6u$ 12u$(mobile)">
 							<label>Password</label>
@@ -69,25 +69,13 @@
 				<form method="post" action="/register">
 					<div class="row 50%">
 						<input type="hidden" name="_csrf" value="{{csrfToken}}">
-						<div class="12u 12u$(mobile)">
-							<label>Team Name</label>
-							<input type="text" name="team_name" placeholder="Awesome Team Name" required/>
-						</div>
 						<div class="6u 12u$(mobile)">
 							<label>Moksha ID of Captain</label>
-							<input type="text" name="moksha_id" placeholder="Captain Moksha ID" required/>
+							<input type="text" name="username" placeholder="Captain Moksha ID" required/>
 						</div>
 						<div class="6u 12u$(mobile)">
 							<label>Password</label>
 							<input type="password" name="password" placeholder="Password" required/>
-						</div>
-						<div class="6u 12u$(mobile)">
-							<label>Moksha ID of Member 2 (optional)</label>
-							<input type="text" name="sec_moksha_id" placeholder="Team Member 2 Moksha ID" />
-						</div>
-						<div class="6u 12u$(mobile)">
-							<label>Moksha ID of Member 3 (optional)</label>
-							<input type="text" name="third_moksha_id" placeholder="Team Member 3 Moksha ID" />
 						</div>
 						<div class="12u$">
 							<ul class="actions">
