@@ -4,10 +4,9 @@ var path = require("path");
 var csrf = require("csurf");
 
 var dbQueries;
-var config = require("../../config");
 
 var router = express.Router();
-var mokAuth = config.mokshaAuth;
+var mokAuth;
 
 var leaderboard;
 var QA = require("../../questions");
@@ -106,6 +105,7 @@ async function loginPost(req, res) {
     res.render("login.njk", { loginError: "Form Tampered With (- _ -)", csrfToken: req.csrfToken() });
     return;
   }
+
   var moksha_id = req.body.moksha_id;
   var pass = req.body.password;
   var options = {
@@ -115,6 +115,7 @@ async function loginPost(req, res) {
     timeout: 1000000,
     form: { moksha_id: moksha_id, pass: pass }
   };
+
   request(options, function (error, response, body) {
     if (error) {
       res.sendStatus(500);
@@ -131,6 +132,7 @@ async function loginPost(req, res) {
       res.render("login.njk", { loginError: "Moksha ID Not Found", csrfToken: req.csrfToken() });
       return;
     }
+
     dbQueries.getTeamName(body.user.moksha_id).asCallback(function (err, rows) {
       if (err) {
         res.sendStatus(500);
@@ -498,6 +500,7 @@ function isCorrect(level, attemptAnswer) {
 
 function init(config) {
   dbQueries = require("../db/queries").init(config.knexConfig);
+  mokAuth = config.mokshaAuth;
   return router;
 }
 

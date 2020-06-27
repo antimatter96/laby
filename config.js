@@ -1,22 +1,22 @@
 var config = {};
 
-config.knex = {
+config.knexConfig = {
   client: "mysql",
   debug: true,
 };
 
 if (process.env.PRO == 1) {
-  config.knex.debug = false;
-  config.knex.connection = {
+  config.knexConfig.debug = false;
+  config.knexConfig.connection = {
     //
     //
     //
     //
   };
-  config.knex.pool = { min: 1, max: 5 };
+  config.knexConfig.pool = { min: 1, max: 5 };
 }
 else {
-  config.knex.connection = {
+  config.knexConfig.connection = {
     host: '127.0.0.1',
     //
     //
@@ -60,6 +60,8 @@ config.redisConfig = {
   port: "6379",
 };
 
+config.port = process.env.PORT || 8080;
+
 if (process.env.PRO == 1) {
   console.log("Using Production");
   config.nunjucksConfig.noCache = false;
@@ -69,7 +71,6 @@ if (process.env.PRO == 1) {
     port: process.env.REDIS_PORT,
     password: process.env.REDIS_PASSWORD
   };
-  config.port = process.env.PORT || 8080;
   let accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
   config.morgan = { stream: accessLogStream };
 } else {
