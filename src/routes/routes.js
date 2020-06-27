@@ -29,7 +29,7 @@ function ensureLoggedIn(req, res, next) {
 }
 
 function addCSRFToken(req, res, next) {
-  res.locals.csrfToken =req.csrfToken();
+  res.locals.csrfToken = req.csrfToken();
   next();
 }
 
@@ -122,7 +122,7 @@ async function loginPost(req, res) {
       return;
     }
 
-    bcrypt.compare(password, rows[0].password, function(err, same) {
+    bcrypt.compare(password, rows[0].password, function (err, same) {
       if (err) {
         res.sendStatus(500);
         console.error(err);
@@ -168,8 +168,8 @@ async function registerPost(req, res) {
       return;
     }
 
-    bcrypt.hash(password, 10, function(err, enc) {
-      if(err) {
+    bcrypt.hash(password, 10, function (err, enc) {
+      if (err) {
         res.sendStatus(500);
         console.log(err);
         return;
@@ -181,13 +181,13 @@ async function registerPost(req, res) {
           console.error(err);
           return;
         }
-        
+
         res.redirect("/login?afterSignup=true");
       });
     });
   });
 
-  
+
 }
 
 async function rulesGet(req, res) {
