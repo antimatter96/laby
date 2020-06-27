@@ -164,24 +164,15 @@ async function registerPost(req, res) {
 
   var body = req.body;
   //Check if all are unique
-  if (
-    (body.sec_moksha_id && (body.moksha_id == body.sec_moksha_id)) ||
-    (body.third_moksha_id && (body.moksha_id == body.third_moksha_id)) ||
-    (body.third_moksha_id && body.sec_moksha_id && (body.third_moksha_id == body.sec_moksha_id))
-  ) {
+  if (body.sec_moksha_id && (body.moksha_id == body.sec_moksha_id)) {
     res.render("register.njk", { signupError: "Please Give Unique Ids", csrfToken: req.csrfToken() });
     return;
   }
 
   var id1 = body.moksha_id;
   var id2 = body.sec_moksha_id;
-  var id3 = body.third_moksha_id;
   var teamName = body.team_name;
-  //If user has filled only third not second then make second as third
-  if (body.third_moksha_id && !body.sec_moksha_id) {
-    id2 = id3;
-    id3 = undefined;
-  }
+
   var options = {
     method: "POST",
     url: mokAuth.url,
@@ -223,109 +214,45 @@ async function registerPost(req, res) {
         }
 
         res_body2 = JSON.parse(res_body2);
-        //console.log(res_body2);
         if (res_body2.msg === mokAuth.msg.invalidId) {
           res.render("register.njk", { signupError: "Please check Moksha Id (2nd)", csrfToken: req.csrfToken() });
           return;
         }
 
-        if (id3) {
-          var options3 = {
-            method: "POST",
-            url: mokAuth.url,
-            headers: { "content-type": "application/x-www-form-urlencoded" },
-            timeout: 1000000,
-            form: { moksha_id: id3, pass: "" }
-          };
-          request(options3, function (error, response, res_body3) {
-            if (error) {
-              res.sendStatus(500);
-              console.log(error);
-              return;
-            }
+        dbQueries.isPart(id1, id2).asCallback(function (err, rows) {
+          if (err) {
+            res.sendStatus(500);
+            console.error(err);
+            return;
+          }
 
-            res_body3 = JSON.parse(res_body3);
-            //console.log(res_body3);
-            if (res_body3.msg === mokAuth.msg.invalidId) {
-              res.render("register.njk", { signupError: "Please check Moksha Id (3rd)", csrfToken: req.csrfToken() });
-              return;
-            }
+          if (rows.length != 0) {
+            res.render("register.njk", { signupError: "Member(s) Registered with team :" + rows[0].name, csrfToken: req.csrfToken() });
+            return;
+          }
 
-            //3 members
-            res.send("Only 3 member");
-            dbQueries.isPart(id1, id2).asCallback(function (err, rows) {
-              if (err) {
-                res.sendStatus(500);
-                console.error(err);
-                return;
-              }
-
-              if (rows.length != 0) {
-                res.render("register.njk", { signupError: "Member(s) Registered with team :" + rows[0].name, csrfToken: req.csrfToken() });
-                return;
-              }
-
-              dbQueries.isTeamNameTaken(teamName).asCallback(function (err, rows) {
-                if (err) {
-                  res.sendStatus(500);
-                  console.error(err);
-                  return;
-                }
-
-                if (rows[0]["count(`name`)"] != 0) {
-                  res.render("register.njk", { signupError: "Team Name Taken", csrfToken: req.csrfToken() });
-                  return;
-                }
-
-                dbQueries.createTeam(teamName, id1, id2).asCallback(function (err, rows) {
-                  if (err) {
-                    res.sendStatus(500);
-                    console.error(err);
-                    return;
-                  }
-
-                  res.redirect("/login?afterSignup=true");
-                });
-              });
-            });
-          });
-        }
-        else {
-          dbQueries.isPart(id1, id2).asCallback(function (err, rows) {
+          dbQueries.isTeamNameTaken(teamName).asCallback(function (err, rows) {
             if (err) {
               res.sendStatus(500);
               console.error(err);
               return;
             }
 
-            if (rows.length != 0) {
-              res.render("register.njk", { signupError: "Member(s) Registered with team :" + rows[0].name, csrfToken: req.csrfToken() });
+            if (rows[0]["count(`name`)"] != 0) {
+              res.render("register.njk", { signupError: "Team Name Taken", csrfToken: req.csrfToken() });
               return;
             }
 
-            dbQueries.isTeamNameTaken(teamName).asCallback(function (err, rows) {
+            dbQueries.createTeam(teamName, id1, id2).asCallback(function (err, rows) {
               if (err) {
                 res.sendStatus(500);
                 console.error(err);
                 return;
               }
-
-              if (rows[0]["count(`name`)"] != 0) {
-                res.render("register.njk", { signupError: "Team Name Taken", csrfToken: req.csrfToken() });
-                return;
-              }
-
-              dbQueries.createTeam(teamName, id1, id2).asCallback(function (err, rows) {
-                if (err) {
-                  res.sendStatus(500);
-                  console.error(err);
-                  return;
-                }
-                res.redirect("/login?afterSignup=true");
-              });
+              res.redirect("/login?afterSignup=true");
             });
           });
-        }
+        });
       });
     }
     else {
