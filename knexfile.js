@@ -6,7 +6,11 @@ module.exports = {
       user: "root",
       password: "661996",
       database: "laby",
-      debug: true,
+      debug: false,
+    },
+    pool: {
+      min: 2,
+      max: 3,
     },
     migrations: {
       tableName: "knex_migrations",

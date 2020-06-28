@@ -2,6 +2,7 @@ var express = require("express");
 var path = require("path");
 var csrf = require("csurf");
 var bcrypt = require("bcrypt");
+var Errors = require("../errors");
 
 var dbQueries;
 
@@ -103,11 +104,11 @@ async function logoutHandler(req, res) {
 
 async function loginPost(req, res) {
   if (!req.body.username || !req.body.password) {
-    res.render("login.njk", { loginError: "Form Tampered With (- _ -)" });
+    res.render("login.njk", { loginError: Errors.FormTempered });
     return;
   }
 
-  var username = req.body.moksha_id;
+  var username = req.body.username;
   var password = req.body.password;
 
   dbQueries.getUser(username).asCallback(function (err, rows) {
@@ -118,7 +119,7 @@ async function loginPost(req, res) {
     }
 
     if (rows.length == 0) {
-      res.render("login.njk", { loginError: "No user with this username" });
+      res.render("login.njk", { loginError: Errors.UserNotPresent });
       return;
     }
 
@@ -130,7 +131,7 @@ async function loginPost(req, res) {
       }
 
       if (!same) {
-        res.render("login.njk", { loginError: "No team registered to login with this Moksha ID" });
+        res.render("login.njk", { loginError: Errors.IncorrectPassword });
         return;
       }
 
@@ -149,7 +150,7 @@ async function registerPost(req, res) {
     return;
   }
   if (!req.body.username || !req.body.password) {
-    res.render("register.njk", { signupError: "Form Tampered With (- _ -)" });
+    res.render("register.njk", { signupError: Errors.FormTempered });
     return;
   }
 
@@ -223,7 +224,7 @@ async function playPost(req, res) {
     req.session.attempts = 1;
   }
   if (!req.body.attemptAnswer) {
-    res.render("play.njk", { q: QA[level], level: level, error: "Form Tampered With (- _ -)" });
+    res.render("play.njk", { q: QA[level], level: level, error: Errors.FormTempered });
     return;
   }
   if (req.body.attemptAnswer > 250) {

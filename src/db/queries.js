@@ -2,6 +2,10 @@ function init(dbConfig) {
   var knex = require("./knex.js")(dbConfig);
 
   return {
+    getUser: function(username) {
+      return knex("users").select("_id", "password", "level").where({ "username": username });
+    },
+
     addAttempt: function (teamId, level, ans) {
       return knex("attempts").returning("_id").insert({ by: teamId, level: level, attemptAnswer: ans });
     },
