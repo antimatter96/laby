@@ -1,0 +1,22 @@
+<div id="countCont">
+  <span id="countText"></span>
+</div>
+<script>
+  const oneDay = 86400000;
+  const oneHour = 60 * 60 * 1000;
+  const oneMinute = oneHour / 60;
+  function funcUpdate(){
+    var milliSec = new Date('2017-3-31') - Date.now();
+    var days = milliSec / oneDay;
+    var SecLeft = milliSec % oneDay;
+    var hours = SecLeft / (oneHour);
+    SecLeft = SecLeft % (oneHour);
+    var minutes = SecLeft / (oneMinute);
+    var time = "";
+    if(parseInt(days) > 0){
+      time +=  parseInt(days) + " days | "; 
+    }
+    document.getElementById("countText").innerText = time + parseInt(hours) + " hours | " + parseInt(minutes) + " minutes";
+  }
+  var t = setTimeout(funcUpdate, 60000);
+</script>

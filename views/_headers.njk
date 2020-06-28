@@ -1,0 +1,13 @@
+{% macro head(title, loc_resp_static)%}
+
+<link rel="shortcut icon" href="{{ loc_resp_static }}static/favicon.ico" type="image/x-icon">
+<link rel="icon" href="{{ loc_resp_static }}static/favicon.ico" type="image/x-icon">
+<title>{{ title }}</title>
+<meta charset="utf-8" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="{{ loc_resp_static }}static/css/main.css" />
+<link rel="stylesheet" href="{{ loc_resp_static }}static/css/style.css" />
+<link href="https://fonts.googleapis.com/css?family=Cinzel:400,700" rel="stylesheet">
+
+{% endmacro %}

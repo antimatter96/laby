@@ -1,3 +1,5 @@
+{% import "_headers.njk" as headers1 %}
+
 <!DOCTYPE HTML>
 <!--
 	Overflow by HTML5 UP
@@ -6,18 +8,9 @@
 -->
 <html>
 	<head>
-		<link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
-		<link rel="icon" href="static/favicon.ico" type="image/x-icon">
-		<title>Labyrinthos</title>
-		<meta charset="utf-8" />
-		
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="stylesheet" href="static/css/main.css" />
-		<link rel="stylesheet" href="static/css/style.css" />
-		<link href="https://fonts.googleapis.com/css?family=Cinzel:400,700" rel="stylesheet">
+		{{ headers1.head("Labyrinthos", "") }}
 	</head>
 	<body>
-	
 			<section id="header">
 				<header class="image centered">
 					<img id="spons" src="static/spons_logo.png">
@@ -104,6 +97,7 @@
 			</article>
 
 		{% include "_footer.njk" %}
+		{% include "_counter.njk" %}
 		
 		{% if afterSignup %}
 		<div id="countCont">
@@ -112,28 +106,5 @@
 			</span>
 		</div>
 		{% endif %}
-		<!--
-		<div id="countCont">
-			<span id="countText">
-				
-			</span>
-		</div>
-		<script>
-			function funcUpdate(){
-				var milliSec =  new Date('2017-3-31') - Date.now();
-				var days = milliSec/86400000;
-				var SecLeft = milliSec%86400000;
-				var hours = SecLeft/(60*60*1000);
-				SecLeft = SecLeft%(60*60*1000);
-				var minutes = SecLeft/(60*1000);
-				var time = "";
-				if(parseInt(days) > 0){
-					time +=  parseInt(days) + " days | "; 
-				}
-				document.getElementById("countText").innerText = time + parseInt(hours) + " hours | " + parseInt(minutes) + " minutes";
-			}
-			var t = setTimeout(funcUpdate,60000);
-		</script>
-		-->
 	</body>
 </html>
