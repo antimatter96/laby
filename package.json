@@ -1,7 +1,7 @@
 {
   "name": "perplexus",
-  "version": "0.0.5",
-  "description": "Moksha",
+  "version": "0.9",
+  "description": "Online Quiz",
   "main": "server.js",
   "dependencies": {
     "bcrypt": "^5.0.0",
@@ -21,7 +21,8 @@
     "validator": "^7.0.0"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "migrate": "./node_modules/knex/bin/cli.js migrate:latest"
   },
   "author": "antimatter96",
   "license": "MIT",
