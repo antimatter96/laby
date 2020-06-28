@@ -157,7 +157,7 @@ async function registerPost(req, res) {
   var username = req.body.username;
   var password = req.body.password;
 
-  dbQueries.isPart(username).asCallback(function (err, rows) {
+  dbQueries.userExists(username).asCallback(function (err, rows) {
     if (err) {
       res.sendStatus(500);
       console.error(err);
@@ -165,7 +165,7 @@ async function registerPost(req, res) {
     }
 
     if (rows.length != 0) {
-      res.render("register.njk", { signupError: "Member Registered with team :" + rows[0].name });
+      res.render("register.njk", { signupError: Errors.UserAlreadyPresent });
       return;
     }
 
@@ -187,12 +187,10 @@ async function registerPost(req, res) {
       });
     });
   });
-
-
 }
 
 async function rulesGet(req, res) {
-  res.sendFile(path.resolve(__dirname, "../views/rules.html"));
+  res.sendFile(path.resolve(__dirname, "../../views/rules.html"));
 }
 
 async function playGet(req, res) {
@@ -201,7 +199,7 @@ async function playGet(req, res) {
   }
 
   if (req.session.level > 14) {
-    res.sendFile(path.resolve(__dirname, "../views/complete.html"));
+    res.sendFile(path.resolve(__dirname, "../../views/complete.html"));
     return;
   }
 
